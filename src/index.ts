@@ -2,6 +2,7 @@ import { greetUser } from '$utils/greet';
 
 window.Webflow ||= [];
 window.Webflow.push(() => {
-  const name = 'John Doe';
+  const name = 'Mohammed Hafeez';
   greetUser(name);
+  document.body.style.backgroundColor = "plum";
 });
