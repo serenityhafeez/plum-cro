@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
       form.addEventListener('submit', (e) => {
         // e.preventDefault(); // Prevent the default form submission behavior
 
-        setTimeout(() => {
-          hidePopup();
-        }, 2000);
+        // setTimeout(() => {
+        //   hidePopup();
+        // }, 2000);
 
         // Set a cookie to indicate that the form has been submitted
         CookieService.setCookie(`formSubmitted_${formId}`, true, 365);
