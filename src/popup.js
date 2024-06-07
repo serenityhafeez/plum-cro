@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Get all forms with the custom attribute
   const forms = document.querySelectorAll('[data-form-id]');
   console.log('Number of forms found:', forms.length);
+  const shouldShowExitIntent = !e.toElement && !e.relatedTarget && e.clientY < 10;
 
   // Iterate over each form
   forms.forEach(form => {
@@ -109,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Checking form with ID:', formId);
 
     // Check if the form has been submitted before
-    if (CookieService.getCookie(`formSubmitted_${formId}`) || CookieService.getCookie('exitIntentShown')) {
+    if (CookieService.getCookie(`formSubmitted_${formId}`) || shouldShowExitIntent) {
       hidePopup(); // Hide the popup if the form has been submitted before
     } else {
       form.addEventListener('submit', (e) => {
@@ -128,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+
+
   // Close button handler
   document.querySelectorAll('.modal-continue-button, .close').forEach(button => {
     button.addEventListener('click', () => {
@@ -140,3 +143,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 });
+
+
