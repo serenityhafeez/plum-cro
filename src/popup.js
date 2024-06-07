@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Checking form with ID:', formId);
 
     // Check if the form has been submitted before
-    if (CookieService.getCookie(`formSubmitted_${formId}`)) {
+    if (CookieService.getCookie(`formSubmitted_${formId}`) || CookieService.getCookie('exitIntentShown')) {
       hidePopup(); // Hide the popup if the form has been submitted before
     } else {
       form.addEventListener('submit', (e) => {
