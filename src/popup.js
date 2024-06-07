@@ -136,6 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Popup closed via button');
     });
   });
+  //nothing
+
+  console.log("This is for testing")
 
 
 
