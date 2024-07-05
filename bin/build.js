@@ -10,7 +10,9 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 const ENTRY_POINTS = [
 
   'src/index.ts',
-  'src/popup.js'];
+  'src/popup.js',
+  'src/perks.js',
+  'src/style.css'];
 
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;

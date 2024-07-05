@@ -1,0 +1,85 @@
+.flip-card.hover-disabled {
+    pointer-events: none;
+    /* transition: none !important; */
+    /* Disable transitions and animations */
+    /* animation: none !important; */
+    /* Disable any animations */
+    opacity: 1;
+    /* Optional: Adding visual cue that hover is disabled */
+    /* Change cursor to indicate non-interactive state */
+
+
+    .hide {
+        opacity: 0;
+        transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        transform: translateY(-20px);
+    }
+
+    /* Ensure unlocked elements are initially hidden */
+    .unlocked.hide {
+        display: none;
+    }
+
+    /* Ensure locked elements are initially visible */
+    .locked {
+        opacity: 1;
+        transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        transform: translateY(0);
+    }
+
+
+
+
+}
+
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80px;
+    /* Adjust based on your image size */
+    height: 80px;
+    /* Adjust based on your image size */
+    pointer-events: none;
+    z-index: 9999;
+    background: url('https://uploads-ssl.webflow.com/63413ad4dec8a91fe53f4fb0/66852e771653a843c1b818ea_key.svg') no-repeat center center;
+    background-size: contain;
+    mix-blend-mode: difference;
+    /* Optional, for better visibility on all backgrounds */
+    opacity: 0;
+    /* Initially hidden */
+    transition: opacity 0.2s ease;
+    /* Smooth transition */
+}
+
+
+
+/* @keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+} */
+
+/* .blinking {
+    animation: blink 5s infinite;
+} */
+
+.perks-hero {
+    cursor: none;
+}
+
+.flip-card {
+    cursor: none;
+
+}
+
+.flip-card:hover {
+    z-index: 100;
+
+}
