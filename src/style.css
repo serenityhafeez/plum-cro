@@ -26,11 +26,8 @@
         transition: opacity 1s ease-in-out, transform 1s ease-in-out;
         transform: translateY(0);
     }
-
-
-
-
 }
+
 
 .custom-cursor {
     position: fixed;
@@ -70,12 +67,34 @@
     animation: blink 5s infinite;
 } */
 
+@keyframes wiggle {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(5deg);
+    }
+
+    50% {
+        transform: rotate(-5deg);
+    }
+
+    75% {
+        transform: rotate(5deg);
+    }
+}
+
 .perks-hero {
     cursor: none;
 }
 
-.flip-card {
+.unlocked .flip-card {
     cursor: none;
+    animation: wiggle 1s;
+
 
 }
 

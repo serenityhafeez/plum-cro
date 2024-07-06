@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
         flipCardElements.forEach(flipCard => {
             flipCard.classList.remove('hover-disabled');
             flipCard.classList.add('hover-enabled'); // Optionally add a class to indicate it's enabled
+            document.body.classList.add('unlocked');
         });
 
         if (sparklesImgElement) {
