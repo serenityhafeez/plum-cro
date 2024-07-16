@@ -12,7 +12,8 @@ const ENTRY_POINTS = [
   'src/index.ts',
   'src/popup.js',
   'src/perks.js',
-  'src/style.css'];
+  'src/style.css',
+  'src/test.js'];
 
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
