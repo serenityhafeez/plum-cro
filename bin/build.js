@@ -13,7 +13,7 @@ const ENTRY_POINTS = [
   'src/popup.js',
   'src/perks.js',
   'src/style.css',
-  'src/test.js'];
+  'src/temp-popup.js'];
 
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;

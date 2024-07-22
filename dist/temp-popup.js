@@ -1,0 +1,1 @@
+"use strict";(()=>{document.addEventListener("scroll",function(){let e=document.querySelector(".healthy-team-popup");if(!e)return;let o=window.scrollY+window.innerHeight,s=document.body.scrollHeight*.3;o>=s?e.classList.add("visible"):e.classList.remove("visible")});})();

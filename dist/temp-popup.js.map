@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../bin/live-reload.js", "../src/temp-popup.js"],
+  "sourcesContent": ["new EventSource(`${SERVE_ORIGIN}/esbuild`).addEventListener('change', () => location.reload());\n", "document.addEventListener('scroll', function () {\n\n    const popup = document.querySelector('.healthy-team-popup');\n    if (!popup) return;\n\n    const scrollPosition = window.scrollY + window.innerHeight;\n    const scrollThreshold = document.body.scrollHeight * 0.3;\n\n    if (scrollPosition >= scrollThreshold) {\n        popup.classList.add('visible');\n    } else {\n        popup.classList.remove('visible');\n    }\n});"],
+  "mappings": ";;;AAAA,MAAI,YAAY,GAAG,uBAAY,UAAU,EAAE,iBAAiB,UAAU,MAAM,SAAS,OAAO,CAAC;;;ACA7F,WAAS,iBAAiB,UAAU,WAAY;AAE5C,UAAM,QAAQ,SAAS,cAAc,qBAAqB;AAC1D,QAAI,CAAC;AAAO;AAEZ,UAAM,iBAAiB,OAAO,UAAU,OAAO;AAC/C,UAAM,kBAAkB,SAAS,KAAK,eAAe;AAErD,QAAI,kBAAkB,iBAAiB;AACnC,YAAM,UAAU,IAAI,SAAS;AAAA,IACjC,OAAO;AACH,YAAM,UAAU,OAAO,SAAS;AAAA,IACpC;AAAA,EACJ,CAAC;",
+  "names": []
+}
