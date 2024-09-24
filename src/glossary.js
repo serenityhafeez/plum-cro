@@ -1,10 +1,10 @@
 let pollCount = 0;
-const maxPolls = 10;
+const maxPolls = 4;
 
 const updateGlossaryAnchors = () => {
     const item_names = document.querySelectorAll('.glossary-h2');
     const letters = [];
-    console.log("SDK Loaded");
+    //console.log("SDK Loaded");
 
     item_names.forEach((item, index) => {
         let name = item.innerHTML;
@@ -71,7 +71,7 @@ function createLetterLink(element) {
 
 // Function to handle checkbox behavior (for glossary-hidden-letter)
 function handleCheckboxChange() {
-    const checkboxes = document.querySelectorAll('#checkbox-3');
+    const checkboxes = document.querySelectorAll('[id^="Checkbox-3"]');
 
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener('change', function () {
@@ -110,85 +110,93 @@ function applyCheckboxState() {
     });
 }
 
+// // Polling mechanism to run only twice
+// const pollInterval = setInterval(() => {
+//     if (pollCount < maxPolls) {
+//         updateGlossaryAnchors();
+//         pollCount++;
+//     } else {
+//         clearInterval(pollInterval);
+//     }
+// }, 1000); // Polling interval (5 seconds)
 
-function showRandomCollectionItemDaily() {
-    // Function to handle the process
-    function showRandomCollectionItem() {
-        console.log("Starting random item selection...");  // Debugging log
 
-        // Get today's date in a 'YYYY-MM-DD' format
-        const today = new Date().toISOString().slice(0, 10);
-        console.log("Today's Date:", today);  // Debugging log
-
-        // Check local storage for previously selected item and date
-        const storedDate = localStorage.getItem('randomItemDate');
-        const storedItemIndex = localStorage.getItem('randomItemIndex');
-
-        console.log("Stored Date:", storedDate);  // Debugging log
-        console.log("Stored Item Index:", storedItemIndex);  // Debugging log
-
-        // If it's the same day and there's a stored item index, use the stored item
-        if (storedDate === today && storedItemIndex !== null) {
-            console.log("Using stored item for today.");  // Debugging log
-            showItem(parseInt(storedItemIndex));
-            return;
-        }
-
-        // Get all collection items (adjust the selector to match your collection)
-        const collectionItems = document.querySelectorAll('wod-item-cms');
-        console.log("Collection Items Found:", collectionItems.length);  // Debugging log
-
-        if (collectionItems.length > 0) {
-            // Randomly select an index for the collection item
-            const randomIndex = Math.floor(Math.random() * collectionItems.length);
-            console.log("Randomly Selected Index:", randomIndex);  // Debugging log
-
-            // Store the random index and today's date in localStorage
-            localStorage.setItem('randomItemDate', today);
-            localStorage.setItem('randomItemIndex', randomIndex);
-
-            // Show the randomly selected item
-            showItem(randomIndex);
-        } else {
-            console.log('No collection items found.');
-        }
+const pollInterval = setInterval(() => {
+    // Function to check if a term-link with href "#A", "#B", or "#C" is loaded
+    function isTermLinkLoaded() {
+        return document.querySelector('.term-link[href="#Z"]') ||
+            document.querySelector('.term-link[href="#Y"]') ||
+            document.querySelector('.term-link[href="#X"]');
     }
 
-    // Function to display only the randomly selected item and hide others
-    function showItem(index) {
-        const collectionItems = document.querySelectorAll('wod-item-cms');
-        console.log("Showing item at index:", index);  // Debugging log
-
-        collectionItems.forEach((item, i) => {
-            if (i === index) {
-                item.style.display = 'block';  // Show the selected item
-            } else {
-                item.style.display = 'none';   // Hide the other items
-            }
-        });
+    // If any of the term-links is loaded, stop polling
+    if (isTermLinkLoaded()) {
+        clearInterval(pollInterval);
+        // console.log("Polling stopped as term-link Z, Y, or X is loaded.");
+    } else {
+        // Perform your glossary update function
+        updateGlossaryAnchors();
+        //console.log("Polling... waiting for term-links Z, Y, or X.");
     }
+}, 1000); // Polling interval of 1 second
 
-    // Call the function when the page is fully loaded
-    window.onload = function () {
-        console.log("Page fully loaded, starting item selection.");  // Debugging log
-        showRandomCollectionItem();
-    };
+// Helper function to get the current day of the year
+function getDayOfYear() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+    //console.log("Current day of the year:", dayOfYear); // Log the day of the year
+    return dayOfYear;
 }
 
-// Call this function to start showing a random collection item daily
-showRandomCollectionItemDaily();
+// Main function to show one item based on the day of the year
+function showDailyItem() {
+    const items = document.querySelectorAll('.wod-item-cms'); // Select your CMS items based on your structure
+    const totalItems = items.length;
 
+    // Log the total number of items
+    // console.log("Total number of items:", totalItems);
 
+    // Get the current day of the year and map it to an item index
+    const dayOfYear = getDayOfYear();
+    const itemToShow = dayOfYear % totalItems; // Ensure it loops if items > 365
+    // Log which item index will be shown
+    //console.log("Item to show for today (index):", itemToShow);
 
-// Polling mechanism to run only twice
-const pollInterval = setInterval(() => {
-    if (pollCount < maxPolls) {
-        updateGlossaryAnchors();
-        pollCount++;
-    } else {
-        clearInterval(pollInterval);
-    }
-}, 1000); // Polling interval (5 seconds)
+    // Hide all items except the one to show for the day
+    items.forEach((item, index) => {
+        if (index === itemToShow) {
+            item.style.display = 'block'; // Show the specific item for the day
+            //console.log("Showing item at index:", index);
+        } else {
+            item.style.display = 'none'; // Hide all others
+            //  console.log("Hiding item at index:", index);
+        }
+    });
+}
+// Run the function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', showDailyItem);
+
+// Function to truncate text for elements with a specific class
+function truncateTextForClass(className, maxLength) {
+    const elements = document.querySelectorAll(className); // Select all elements with the given class
+
+    elements.forEach(element => {
+        const text = element.textContent;
+
+        // If the text length exceeds the max length, truncate it and add "..."
+        if (text.length > maxLength) {
+            const truncatedText = text.substring(0, maxLength) + '...';
+            element.textContent = truncatedText;
+            //console.log(`Truncated text: "${truncatedText}"`); // Log the truncated text
+        }
+    });
+}
+
+// Call the function, truncate text in .14px-glossary to a max of 243 characters
+truncateTextForClass('._14px-glossary', 243);
 
 // Initial update
 updateGlossaryAnchors();
