@@ -186,7 +186,7 @@ function truncateTextBasedOnScreen() {
 
         if (text.length > maxLength) {
             // const truncatedText = text.substring(0, maxLength) + ' ...read more';
-            const truncatedText = text.substring(0, maxLength) + ' <span class="read-more">...read more</span>';
+            const truncatedText = text.substring(0, maxLength) + ' ...read more';
 
             element.textContent = truncatedText;
             console.log(`Truncated text: "${truncatedText}"`);
