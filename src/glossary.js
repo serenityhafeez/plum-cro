@@ -161,8 +161,7 @@ function showDailyItem() {
 
     // Get the current day of the year and map it to an item index
     const dayOfYear = getDayOfYear();
-    // const itemToShow = dayOfYear % totalItems; // Ensure it loops if items > 365
-    const itemToShow = 2; // Ensure it loops if items > 365
+    const itemToShow = dayOfYear % totalItems; // Ensure it loops if items > 365
     // Log which item index will be shown
     //console.log("Item to show for today (index):", itemToShow);
 
