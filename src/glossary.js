@@ -197,7 +197,7 @@ function truncateTextBasedOnScreen() {
         const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
 
         // Set character limits based on screen size
-        const maxLength = isMobile ? 170 : 243;
+        const maxLength = isMobile ? 160 : 233;
 
         // Truncate text for each element with class '14px-glossary'
         elements.forEach(element => truncateText(element, maxLength));
