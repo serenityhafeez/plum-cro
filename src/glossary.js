@@ -161,7 +161,8 @@ function showDailyItem() {
 
     // Get the current day of the year and map it to an item index
     const dayOfYear = getDayOfYear();
-    const itemToShow = dayOfYear % totalItems; // Ensure it loops if items > 365
+    // const itemToShow = dayOfYear % totalItems; // Ensure it loops if items > 365
+    const itemToShow = 2; // Ensure it loops if items > 365
     // Log which item index will be shown
     //console.log("Item to show for today (index):", itemToShow);
 
@@ -179,24 +180,39 @@ function showDailyItem() {
 // Run the function when the DOM is loaded
 document.addEventListener('DOMContentLoaded', showDailyItem);
 
-// Function to truncate text for elements with a specific class
-function truncateTextForClass(className, maxLength) {
-    const elements = document.querySelectorAll(className); // Select all elements with the given class
-
-    elements.forEach(element => {
+function truncateTextBasedOnScreen() {
+    // Helper function to truncate text based on max length
+    function truncateText(element, maxLength) {
         const text = element.textContent;
 
-        // If the text length exceeds the max length, truncate it and add "..."
         if (text.length > maxLength) {
-            const truncatedText = text.substring(0, maxLength) + '...';
+            const truncatedText = text.substring(0, maxLength) + ' ...';
             element.textContent = truncatedText;
-            //console.log(`Truncated text: "${truncatedText}"`); // Log the truncated text
+            console.log(`Truncated text: "${truncatedText}"`);
         }
-    });
+    }
+
+    // Function to handle truncation based on screen size
+    function handleTruncate() {
+        const elements = document.querySelectorAll('._14px-glossary');
+        const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
+
+        // Set character limits based on screen size
+        const maxLength = isMobile ? 170 : 243;
+
+        // Truncate text for each element with class '14px-glossary'
+        elements.forEach(element => truncateText(element, maxLength));
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', handleTruncate);
+
+    // Run on window resize
+    window.addEventListener('resize', handleTruncate);
 }
 
-// Call the function, truncate text in .14px-glossary to a max of 243 characters
-truncateTextForClass('._14px-glossary', 243);
+// Call the function to start truncating text
+truncateTextBasedOnScreen();
 
 // Initial update
 updateGlossaryAnchors();
