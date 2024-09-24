@@ -193,6 +193,7 @@ function truncateTextBasedOnScreen() {
 
     // Function to handle truncation based on screen size
     function handleTruncate() {
+        console.log("Add Truncation")
         const elements = document.querySelectorAll('._14px-glossary');
         const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
 
