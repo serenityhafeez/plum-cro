@@ -214,6 +214,58 @@ function truncateTextBasedOnScreen() {
     window.addEventListener('resize', handleTruncate);
 }
 
+function startPlaceholderTypeAnimation() {
+    // Get the search input element
+    const searchInput = document.querySelector('.search-glossary');
+
+    // Define the placeholder options
+    const placeholders = ["Background Verification...", "Absconding...", "Basic Pay..."];
+
+    // Set an initial index
+    let index = 0;
+    let charIndex = 0;
+    let typingSpeed = 80; // Speed of typing each character in milliseconds
+    let delayBetweenWords = 2000; // Delay between changing to the next word
+
+    // Function to type out the current placeholder
+    function typePlaceholder() {
+        const currentText = placeholders[index];
+
+        if (charIndex < currentText.length) {
+            searchInput.placeholder = `Search for ${currentText.substring(0, charIndex + 1)}`;
+            charIndex++;
+            setTimeout(typePlaceholder, typingSpeed);
+        } else {
+            // Wait for some time after completing typing the word before moving to the next
+            setTimeout(deletePlaceholder, delayBetweenWords);
+        }
+    }
+
+    // Function to delete the current placeholder text
+    function deletePlaceholder() {
+        const currentText = placeholders[index];
+
+        if (charIndex > 0) {
+            searchInput.placeholder = `Search for ${currentText.substring(0, charIndex - 1)}`;
+            charIndex--;
+            setTimeout(deletePlaceholder, typingSpeed);
+        } else {
+            // Move to the next word and start typing
+            index = (index + 1) % placeholders.length;
+            setTimeout(typePlaceholder, typingSpeed);
+        }
+    }
+
+    // Start typing the first placeholder
+    typePlaceholder();
+}
+
+// Call the function to start the typewriter animation
+startPlaceholderTypeAnimation();
+
+
+
+
 // Call the function to start truncating text
 truncateTextBasedOnScreen();
 
