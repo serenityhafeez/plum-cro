@@ -189,14 +189,14 @@ function truncateTextBasedOnScreen() {
             const truncatedText = text.substring(0, maxLength) + ' ...read more';
 
             element.textContent = truncatedText;
-            console.log(`Truncated text: "${truncatedText}"`);
+            //console.log(`Truncated text: "${truncatedText}"`);
         }
     }
 
     // Function to handle truncation based on screen size
     function handleTruncate() {
-        console.log("Add Truncation")
-        console.log("another line to fix stuff")
+        //console.log("Add Truncation")
+        //console.log("another line to fix stuff")
         const elements = document.querySelectorAll('._14px-glossary');
         const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
 
@@ -259,6 +259,47 @@ function startPlaceholderTypeAnimation() {
     // Start typing the first placeholder
     typePlaceholder();
 }
+
+
+function checkGlossaryItems() {
+    const glossaryItems = document.querySelectorAll('.glossary-item-group');
+    const noItems = document.querySelector('.no-items');
+
+    // Check if all .glossary-item-group elements have display: none
+    let allHidden = true;
+
+    glossaryItems.forEach(item => {
+        const displayStyle = window.getComputedStyle(item).display;
+        if (displayStyle !== 'none') {
+            allHidden = false;
+        }
+    });
+
+    // If all glossary items are hidden, show .no-items, else hide it
+    if (allHidden) {
+        noItems.style.display = 'block';
+    } else {
+        noItems.style.display = 'none';
+    }
+}
+
+// MutationObserver to watch for changes in the DOM
+const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+        checkGlossaryItems();  // Re-check every time there's a mutation
+    });
+});
+
+// Start observing the body (or a parent container) for childList changes or subtree changes
+document.addEventListener("DOMContentLoaded", function () {
+    const targetNode = document.body; // or a more specific container
+    const config = { attributes: true, childList: true, subtree: true };
+
+    observer.observe(targetNode, config);
+
+    // Initial check on page load
+    checkGlossaryItems();
+});
 
 // Call the function to start the typewriter animation
 startPlaceholderTypeAnimation();
