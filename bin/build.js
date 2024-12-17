@@ -6,6 +6,16 @@ import { join, sep } from 'path';
 const BUILD_DIRECTORY = 'dist';
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
+import webpack from 'webpack';
+import config from '../webpack.config.js'; // This will now work with 'export default'
+
+webpack(config, (err, stats) => {
+  if (err || stats.hasErrors()) {
+    console.error('Webpack build failed:', err || stats.toString());
+  } else {
+    console.log('Webpack build succeeded.');
+  }
+});
 // Config entrypoint files
 const ENTRY_POINTS = [
 
@@ -13,7 +23,15 @@ const ENTRY_POINTS = [
   'src/popup.js',
   'src/perks.js',
   'src/style.css',
-  'src/temp-popup.js'];
+  'src/temp-popup.js',
+  'src/table.css',
+  'src/blog-toc.js',
+  'src/glossary',
+  'src/search-glossary',
+  'src/quick-search',
+  'src/esops-fables',
+  'src/get-quote-form'
+];
 
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
