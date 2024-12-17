@@ -24,12 +24,9 @@ const ENTRY_POINTS = [
   'src/perks.js',
   'src/style.css',
   'src/temp-popup.js',
-  'src/table.css',
-  'src/blog-toc.js',
   'src/glossary',
   'src/search-glossary',
   'src/quick-search',
-  'src/esops-fables',
   'src/get-quote-form'
 ];
 
