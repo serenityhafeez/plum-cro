@@ -1,3 +1,5 @@
+
+console.log("check")
 document.addEventListener("DOMContentLoaded", function () {
     const steps = document.querySelectorAll(".form-block-wrapper");
     const nextButton = document.querySelector(".next-get-quote");
