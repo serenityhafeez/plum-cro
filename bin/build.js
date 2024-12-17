@@ -6,16 +6,16 @@ import { join, sep } from 'path';
 const BUILD_DIRECTORY = 'dist';
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
-import webpack from 'webpack';
-import config from '../webpack.config.js'; // This will now work with 'export default'
+// import webpack from 'webpack';
+// import config from '../webpack.config.js'; // This will now work with 'export default'
 
-webpack(config, (err, stats) => {
-  if (err || stats.hasErrors()) {
-    console.error('Webpack build failed:', err || stats.toString());
-  } else {
-    console.log('Webpack build succeeded.');
-  }
-});
+// webpack(config, (err, stats) => {
+//   if (err || stats.hasErrors()) {
+//     console.error('Webpack build failed:', err || stats.toString());
+//   } else {
+//     console.log('Webpack build succeeded.');
+//   }
+// });
 // Config entrypoint files
 const ENTRY_POINTS = [
 
