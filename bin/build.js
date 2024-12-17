@@ -24,10 +24,10 @@ const ENTRY_POINTS = [
   'src/perks.js',
   'src/style.css',
   'src/temp-popup.js',
-  'src/glossary',
-  'src/search-glossary',
-  'src/quick-search',
-  'src/get-quote-form'
+  'src/glossary.js',
+  'src/search-glossary.js',
+  'src/quick-search.js',
+  'src/get-quote-form.js'
 ];
 
 // Config dev serving
