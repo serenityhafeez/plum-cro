@@ -10,229 +10,270 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let currentStep = 0;
     let isBusinessEmail = false;
+    let contactCreated = false;
 
-    // Function to validate a single field
-    function validateField(field) {
-        const errorMessage = field
-            .closest(".form-input-holder")
-            .querySelector(".required-field");
+    const backendEndpoint = "https://backend-eoqisywzm-mohammed-hafeezs-projects.vercel.app/api/hubspot";
 
-        // For radio buttons
-        if (field.type === "radio") {
-            const radioGroup = field.closest(".form-block-wrapper").querySelectorAll(
-                `input[name="${field.name}"]`
-            );
-            const isChecked = Array.from(radioGroup).some((radio) => radio.checked);
 
-            errorMessage.classList.toggle('visible', !isChecked);
-            return isChecked;
+
+
+    // Show loading indicator
+    function showLoading(isLoading) {
+        const loader = document.querySelector(".loading-indicator");
+        const submitText = document.querySelector(".submit-text");
+        const loaderGq = document.querySelector(".loader-gq");
+
+        if (loader) {
+            loader.style.display = isLoading ? "block" : "none";
         }
-        // For select fields
-        else if (field.tagName === "SELECT") {
-            const isEmpty = field.value.trim() === "";
-            errorMessage.classList.toggle('visible', isEmpty);
-            return !isEmpty;
-        }
-        // For standard input fields
-        else {
-            const isEmpty = !field.value.trim();
-            errorMessage.classList.toggle('visible', isEmpty);
-            return !isEmpty;
+
+        if (submitText && loaderGq) {
+            if (isLoading) {
+                submitText.classList.add("hidden"); // Add .hidden class to .submit-text
+                loaderGq.classList.remove("hidden"); // Remove .hidden class from .loader-gq
+            } else {
+                submitText.classList.remove("hidden"); // Remove .hidden class from .submit-text
+                loaderGq.classList.add("hidden"); // Add .hidden class to .loader-gq
+            }
         }
     }
 
-    // Setup real-time validation listeners
-    function setupValidationListeners() {
-        steps.forEach(step => {
-            // Handle text and email inputs
-            const inputs = step.querySelectorAll('input[type="text"], input[type="email"]');
-            inputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    if (input.value.trim()) {
-                        const errorMessage = input
-                            .closest(".form-input-holder")
-                            .querySelector(".required-field");
-                        errorMessage.classList.remove('visible');
+    function setLastStepFieldsNil() {
+        // Ensure nil options are only created for business email users
+        if (!isBusinessEmail) {
+            console.log("Skipping setting nil options for free email.");
+            return; // Exit the function early for free email domains
+        }
+
+        const companyTypeSelect = document.getElementById("company_registration_type_gq");
+        if (companyTypeSelect && companyTypeSelect.value.trim() === "") {
+            addNilOption(companyTypeSelect);
+            companyTypeSelect.value = "nil";
+        }
+
+        const nilRadio = document.querySelector('input[type="radio"][value="nil"]');
+        if (nilRadio) nilRadio.checked = true;
+
+        const industrySelect = document.getElementById("industry_gq");
+        if (industrySelect && industrySelect.value.trim() === "") {
+            addNilOption(industrySelect);
+            industrySelect.value = "nil";
+        }
+
+        // For Step 3 fields if business email
+        if (currentStep === 2) {
+            const stepThreeFields = steps[2].querySelectorAll("select[name], input[name], textarea[name]");
+            stepThreeFields.forEach((field) => {
+                if (field.tagName === "SELECT" && field.value.trim() === "") {
+                    addNilOption(field);
+                    field.value = "nil";
+                } else if (field.type === "radio" && !steps[2].querySelector(`input[name="${field.name}"]:checked`)) {
+                    const nilOption = steps[2].querySelector(`input[name="${field.name}"][value="nil"]`);
+                    if (!nilOption) {
+                        const nilRadio = document.createElement("input");
+                        nilRadio.type = "radio";
+                        nilRadio.name = field.name;
+                        nilRadio.value = "nil";
+                        steps[2].appendChild(nilRadio);
                     }
-                });
+                    steps[2].querySelector(`input[name="${field.name}"][value="nil"]`).checked = true;
+                }
             });
+        }
+    }
 
-            // Handle select inputs
-            const selects = step.querySelectorAll('select');
-            selects.forEach(select => {
-                select.addEventListener('change', () => {
-                    if (select.value.trim()) {
-                        const errorMessage = select
-                            .closest(".form-input-holder")
-                            .querySelector(".required-field");
-                        errorMessage.classList.remove('visible');
-                    }
-                });
-            });
+    // Helper to add a "nil" option to a select element (only for business emails)
+    function addNilOption(selectElement) {
+        // Prevent showing nil in the frontend by ensuring it is not created if already present
+        if (!Array.from(selectElement.options).some(option => option.value === "nil")) {
+            const nilOption = document.createElement("option");
+            nilOption.value = "nil";
+            nilOption.textContent = ""; // Empty text ensures nil isn't visible in the frontend
+            selectElement.appendChild(nilOption);
+        }
+    }
 
-            // Handle radio buttons
-            const radioGroups = new Set();
-            const radioButtons = step.querySelectorAll('input[type="radio"]');
-            radioButtons.forEach(radio => {
-                radioGroups.add(radio.name);
-            });
 
-            radioGroups.forEach(groupName => {
-                const radios = step.querySelectorAll(`input[type="radio"][name="${groupName}"]`);
-                radios.forEach(radio => {
-                    radio.addEventListener('change', () => {
-                        const errorMessage = radio
-                            .closest(".form-input-holder")
-                            .querySelector(".required-field");
-                        errorMessage.classList.remove('visible');
-                    });
-                });
-            });
+    function collectStepData() {
+        const currentFormStep = steps[currentStep];
+        const fields = currentFormStep.querySelectorAll("input[name], select[name], textarea[name]");
+        const data = {};
+
+        fields.forEach((field) => {
+            if (field.name) {
+                if (field.type === "radio" && !field.checked) return; // Skip unchecked radios
+                data[field.name] = field.value.trim();
+            }
         });
+
+        const emailField = document.querySelector("input[type='email']");
+        if (emailField) {
+            data.email = emailField.value.trim();
+        }
+
+        console.log("Collected Step Data:", data); // Debug collected data
+        return data;
     }
 
-    // Validate all required fields in current step
     function validateStep() {
         const currentFormStep = steps[currentStep];
         const requiredFields = currentFormStep.querySelectorAll("[required]");
         let isValid = true;
 
         requiredFields.forEach((field) => {
-            const errorMessage = field
-                .closest(".form-input-holder")
-                .querySelector(".required-field");
+            const errorMessage = field.closest(".form-input-holder").querySelector(".required-field");
+            const isFieldEmpty = field.type === "radio"
+                ? !currentFormStep.querySelector(`input[name="${field.name}"]:checked`)
+                : !field.value.trim();
 
-            // For radio buttons
-            if (field.type === "radio") {
-                const radioGroup = currentFormStep.querySelectorAll(
-                    `input[name="${field.name}"]`
-                );
-                const isChecked = Array.from(radioGroup).some((radio) => radio.checked);
-
-                if (!isChecked) {
-                    errorMessage.classList.add('visible');
-                    isValid = false;
-                }
-            }
-            // For select fields
-            else if (field.tagName === "SELECT") {
-                if (field.value.trim() === "") {
-                    errorMessage.classList.add('visible');
-                    isValid = false;
-                }
-            }
-            // For standard input fields
-            else if (!field.value.trim()) {
-                errorMessage.classList.add('visible');
+            if (isFieldEmpty) {
+                errorMessage.classList.add("visible");
                 isValid = false;
+            } else {
+                errorMessage.classList.remove("visible");
             }
+
+            field.addEventListener("input", () => errorMessage.classList.remove("visible"));
         });
 
         return isValid;
     }
 
-    function showStep(stepIndex) {
-        steps.forEach((step, index) => {
-            if (index === stepIndex) {
-                step.classList.remove('hidden');
-            } else {
-                step.classList.add('hidden');
+    async function checkIfContactExists(email) {
+        const url = `${backendEndpoint}?email=${encodeURIComponent(email)}`;
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            // Parse the response body
+            const responseBody = await response.json();
+            console.log("GET Response Status:", response.status);
+            console.log("GET Response Body:", responseBody);
+
+            // Check the contactExists field in the response body
+            if (responseBody.contactExists === true) {
+                console.log("Contact exists (contactExists: true)."); // Debug log
+                return true; // Contact exists
             }
-        });
 
-        backButton.classList.toggle("visible", stepIndex > 0);
+            if (responseBody.contactExists === false) {
+                console.log("Contact does not exist (contactExists: false)."); // Debug log
+                return false; // Contact does not exist
+            }
 
-        if (isBusinessEmail && stepIndex === 1) {
-            nextButton.style.display = "none";
-            submitButton.classList.add("visible");
-        }
-        else if (!isBusinessEmail && stepIndex === steps.length - 1) {
-            nextButton.style.display = "none";
-            submitButton.classList.add("visible");
-        }
-        else {
-            nextButton.style.display = "inline-block";
-            submitButton.classList.remove("visible");
+            // Handle unexpected cases
+            console.error("Unexpected response body or format:", responseBody);
+            return false; // Assume contact does not exist on unexpected format
+        } catch (error) {
+            console.error("Error during contact existence check:", error.message);
+            return false; // Assume contact does not exist on error
         }
     }
 
-    function markLastStepFieldsNil() {
-        const companyTypeSelect = document.getElementById("company-type");
-        if (companyTypeSelect) {
-            if (!Array.from(companyTypeSelect.options).some(option => option.value === "nil")) {
-                const nilOption = document.createElement("option");
-                nilOption.value = "nil";
-                nilOption.textContent = "Nil";
-                companyTypeSelect.appendChild(nilOption);
-            }
-            companyTypeSelect.value = "nil";
-        }
+    async function sendDataToBackend(data, isCreate) {
+        const method = isCreate ? "POST" : "PATCH";
 
-        const nilRadio = document.querySelector('input[type="radio"][value="nil"]');
-        if (nilRadio) {
-            nilRadio.checked = true;
-        }
+        const payload = {
+            email: data.email,
+            properties: { ...data },
+        };
 
-        const industrySelect = document.getElementById("industry");
-        if (industrySelect) {
-            if (!Array.from(industrySelect.options).some(option => option.value === "nil")) {
-                const nilOption = document.createElement("option");
-                nilOption.value = "nil";
-                nilOption.textContent = "Nil";
-                industrySelect.appendChild(nilOption);
+        console.log("Sending Payload:", payload); // Debug payload
+
+        try {
+            showLoading(true);
+            const response = await fetch(backendEndpoint, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `Failed: ${response.statusText}`);
             }
-            industrySelect.value = "nil";
+
+            console.log(`${method} Successful:`, result);
+            return result;
+        } catch (error) {
+            console.error("Error submitting data:", error.message);
+            throw error;
+        }
+        finally {
+            showLoading(false); // Hide the loading indicator after the operation
         }
     }
 
-    function resetLastStepFields() {
-        const companyTypeSelect = document.getElementById("company-type");
-        if (companyTypeSelect) {
-            const nilOption = companyTypeSelect.querySelector('option[value="nil"]');
-            if (nilOption) {
-                nilOption.remove();
-            }
-            companyTypeSelect.value = "";
-        }
 
-        const nilRadio = document.querySelector('input[type="radio"][value="nil"]');
-        if (nilRadio) {
-            nilRadio.checked = false;
-        }
 
-        const industrySelect = document.getElementById("industry");
-        if (industrySelect) {
-            const nilOption = industrySelect.querySelector('option[value="nil"]');
-            if (nilOption) {
-                nilOption.remove();
-            }
-            industrySelect.value = "";
-        }
-    }
-
+    //Handle email input
     function handleEmailInput() {
         const emailField = steps[0].querySelector("input[type='email']");
 
-        emailField.addEventListener("input", function () {
-            const emailValue = emailField.value.trim();
-            isBusinessEmail = !freeEmailDomains.includes(emailValue.split("@")[1]);
+        // Ensure `lastStepElements` and `switchToBizElements` are hidden initially
+        lastStepElements.forEach((el) => el.classList.add("remove"));
 
-            if (isBusinessEmail) {
-                lastStepElements.forEach((el) => el.classList.add("remove"));
-                switchToBizElements.forEach((el) => el.classList.remove("visible"));
-            } else {
-                resetLastStepFields();
+        emailField.addEventListener("input", () => {
+            const emailValue = emailField.value.trim();
+            const domain = emailValue.split("@")[1]?.toLowerCase(); // Extract the domain after "@"
+
+            if (domain && freeEmailDomains.includes(domain)) {
+                isBusinessEmail = false; // Free email domain
                 lastStepElements.forEach((el) => el.classList.remove("remove"));
                 switchToBizElements.forEach((el) => el.classList.add("visible"));
+            } else if (domain) {
+                isBusinessEmail = true; // Business email domain
+                switchToBizElements.forEach((el) => el.classList.remove("visible"));
+                lastStepElements.forEach((el) => el.classList.add("remove"));
+            } else {
+                isBusinessEmail = false; // Incomplete or invalid input
+                lastStepElements.forEach((el) => el.classList.add("remove"));
+                switchToBizElements.forEach((el) => el.classList.add("remove"));
             }
+
+            setLastStepFieldsNil();
+
+            // Update the button visibility dynamically
+            showStep(currentStep);
         });
     }
 
-    // Event listeners
-    nextButton.addEventListener("click", function () {
+    function showStep(stepIndex) {
+        steps.forEach((step, index) => step.classList.toggle("hidden", index !== stepIndex));
+        backButton.classList.toggle("visible", stepIndex > 0);
+
+        // Logic for showing or hiding buttons based on the step and email type
+        if (stepIndex === 1 && isBusinessEmail) {
+            nextButton.style.display = "none"; // Hide Next button
+            submitButton.classList.add("visible"); // Show Submit button
+        } else {
+            nextButton.style.display = (stepIndex === steps.length - 1 || (stepIndex === 1 && isBusinessEmail)) ? "none" : "inline-block";
+            submitButton.classList.toggle("visible", stepIndex === steps.length - 1 || (stepIndex === 1 && isBusinessEmail));
+        }
+    }
+
+    nextButton.addEventListener("click", async () => {
         if (validateStep()) {
-            if (currentStep === 0 && isBusinessEmail) {
-                markLastStepFieldsNil();
+            const data = collectStepData();
+
+            if (currentStep === 0 && !contactCreated) {
+                console.log("Checking if contact exists for email:", data.email);
+                const exists = await checkIfContactExists(data.email);
+
+                if (exists) {
+                    console.log("Contact exists, sending PATCH...");
+                    await sendDataToBackend(data, false); // PATCH
+                } else {
+                    console.log("Contact does not exist, sending POST...");
+                    await sendDataToBackend(data, true); // POST
+                    contactCreated = true;
+                }
+            } else {
+                console.log("Sending PATCH for step data...");
+                await sendDataToBackend(data, false); // PATCH
             }
 
             if (currentStep < steps.length - 1) {
@@ -242,25 +283,28 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    backButton.addEventListener("click", function () {
+    submitButton.addEventListener("click", async () => {
+        if (validateStep()) {
+            const data = collectStepData();
+            console.log("Submitting final data with PATCH...");
+            await sendDataToBackend(data, false); // PATCH
+            console.log("Form submitted successfully!");
+            // triggerRevenueHero();
+        }
+    });
+
+
+    backButton.addEventListener("click", () => {
         if (currentStep > 0) {
             currentStep--;
             showStep(currentStep);
         }
     });
 
-    submitButton.addEventListener("click", function () {
-        if (validateStep()) {
-            console.log("Form Submitted Successfully!");
-        }
-    });
-
-    // Initialize form - ensure other steps start hidden
-    steps.forEach((step, index) => {
-        if (index > 0) {
-            step.classList.add('hidden');
-        }
-    });
+    setLastStepFieldsNil();
+    showStep(currentStep);
     handleEmailInput();
-    setupValidationListeners();
 });
+
+
+
